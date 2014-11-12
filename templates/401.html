@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+  <h1>Error 401</h1>
+  <p>You are not authorized for this page.</p>
+
+  {% if session['logged_in'] %}
+  <p>you are alread logged in, but that is not enough</p>
+  {% else %}
+  <p>you should log in!</p>
+  {% endif %}
+
+{% endblock %}

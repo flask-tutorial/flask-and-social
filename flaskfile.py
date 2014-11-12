@@ -1,7 +1,7 @@
 # ====================================================================================
-# Example Flask Web App for Data Scientist
+# Example Flask Web App 
 # ====================================================================================
-# originially from https://github.com/flask-tutorial/flask-for-data-science
+# originially from https://github.com/flask-tutorial/flask-and-social
 
 # all the imports
 import sqlite3, urllib, json, os
@@ -51,16 +51,10 @@ def add_entry():
 
 @app.route('/form', methods=['GET', 'POST'])
 def form():
+  if not session.get('logged_in'):
+    abort(401)
   errors = []
   if request.method == 'POST':
-    title = request.form.get('title')
-    if len(title) < 3:
-      errors.append( 'Please choose a title (at least 3 letters long)' )
-
-    text = request.form.get('text')
-    if len(text) < 10:
-      errors.append( 'please write the text (at least 10 letters long)' )
-
     mood = int( request.form.get('mood') )
     if not mood in [1,2,3,4,5]:
       errors.append( 'please choose a mood' )
@@ -128,6 +122,10 @@ def logout():
   return redirect(url_for('index'))
 
 # ====================================================================================
+@app.errorhandler(401)
+def page_not_found(e):
+  return render_template('401.html'), 404
+
 @app.errorhandler(404)
 def page_not_found(e):
   return render_template('404.html'), 404
