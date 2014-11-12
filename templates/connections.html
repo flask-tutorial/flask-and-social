@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block body %}
+  <h2>Connections</h2>
+  <p>Here you can set up your connections to Facebook, Twitter, etc</p>
+
+  {% if connections|count == 0 %}
+  <p><em>Unbelievable.  No entries here so far. entries is {{entries}}</p>
+  {% else %}
+    <table id="myTable" class="table">
+      <tr>
+        <th>Uid</th>
+        <th>E-Mail</th>
+        <th>Facebook</th>
+        <th>Twitter</th>
+        <th>Google</th>
+      </tr>
+    {% for connection in connections %}
+      <tr>
+        <td>{{ connection[0] }}</td>
+        <td>{{ connection[1] }}</td>
+        <td>{{ connection[2] }}</td>
+        <td>{{ connection[3] }}</td>
+        <td>{{ connection[4] }}</td>
+      </tr>
+    {% endfor %}
+    </table>
+  {% endif %}
+
+{% endblock %}
+

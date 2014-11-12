@@ -60,45 +60,20 @@ def form():
       errors.append( 'please choose a mood' )
 
     if len(errors) == 0:
-      g.db.execute('insert into entries (title, text, mood, lat, long) values (?, ?, ?, ?, ?)', 
-                   [title, text, mood, request.form.get('lat'), request.form.get('long')])
+      g.db.execute('insert into mood (uid, mood, lat, long) values (?, ?, ?, ?)', 
+                   [session['uid'], mood, request.form.get('lat'), request.form.get('long')])
       g.db.commit()
-      flash('Your entry "' + text + '" was saved to the database')
+      flash('Your entry "' + str(mood) + '" was saved to the database')
       return redirect( url_for('index') )
   return render_template('form.html', error=", ".join(errors))
 
-@app.route('/table')
-def table():
-  cur = g.db.execute('select title, text, mood, lat, long from entries order by id desc')
-  entries = cur.fetchall()
-  return render_template('table.html', entries=entries)
-
-@app.route('/graph')
-def graph():
-  return render_template('graph.html')
-
-@app.route('/map')
-def map():
-  cur = g.db.execute('select title, text, mood, lat, long from entries order by id desc')
-  entries = cur.fetchall()
-  return render_template('map.html', entries=entries)
-
-@app.route('/map_api')
-def map_api():
-  busline = request.args.get('busline')
-  if not busline in ['B26', 'B54', 'B61', 'B69']:
-    busline = 'B26'
-  url = 'http://api.prod.obanyc.com/api/siri/vehicle-monitoring.json?key=%s&VehicleMonitoringDetailLevel=calls&LineRef=%s' % (app.config['MTA_KEY'], busline)
-  json_data = urllib.urlopen(url).read()
-  bus_data = json.loads( json_data )['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]
-  entries = []
-  if( not 'ErrorCondition' in bus_data.keys() ):
-    bus_data = bus_data['VehicleActivity']
-    for bus in bus_data:
-      location = bus['MonitoredVehicleJourney']['VehicleLocation'] 
-      entries.append( location )
-    app.logger.info('Found %d busses on line %s' % (len(entries), busline))
-  return render_template('map_api.html', entries=entries)
+@app.route('/connections')
+def connections():
+  if not session.get('logged_in'):
+    abort(401)
+  cur = g.db.execute('select * from user where uid=?', [ session['uid'] ])
+  connections = cur.fetchall()
+  return render_template('connections.html', connections=connections)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -110,6 +85,7 @@ def login():
       error = 'Invalid password'
     else:
       session['logged_in'] = True
+      session['uid'] = 1
       session['username'] = request.form['username']
       flash('You were logged in as ' + session['username'])
       return redirect( url_for('index') )
