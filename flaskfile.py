@@ -29,6 +29,8 @@ def before_request():
   g.dir = os.path.dirname(os.path.abspath(__file__))
   g.db  = sqlite3.connect(g.dir + '/' + app.config['DATABASE'])
   g.facebook_user = facebook.get_user_from_cookie(request.cookies, app.config['FACEBOOK_APP_ID'], app.config['FACEBOOK_APP_SECRET'])
+  app.logger.error('facebbok user' + repr(g.facebook_user))
+
 
 @app.teardown_request
 def teardown_request(exception):
@@ -74,7 +76,7 @@ def connections():
     abort(401)
   cur = g.db.execute('select * from user where uid=?', [ session['uid'] ])
   connections = cur.fetchall()
-  return render_template('connections.html', connections=connections)
+  return render_template('connections.html', connections=connections, facebook_user = g.facebook_user)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
