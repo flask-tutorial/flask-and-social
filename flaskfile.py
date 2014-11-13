@@ -4,7 +4,7 @@
 # originially from https://github.com/flask-tutorial/flask-and-social
 
 # all the imports
-import sqlite3, urllib, json, os
+import sqlite3, urllib, json, os, facebook
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 
 app = Flask(__name__)
@@ -28,6 +28,7 @@ app.config.from_object("config")
 def before_request():
   g.dir = os.path.dirname(os.path.abspath(__file__))
   g.db  = sqlite3.connect(g.dir + '/' + app.config['DATABASE'])
+  g.facebook_user = facebook.get_user_from_cookie(request.cookies, app.config['FACEBOOK_APP_ID'], app.config['FACEBOOK_APP_SECRET'])
 
 @app.teardown_request
 def teardown_request(exception):
