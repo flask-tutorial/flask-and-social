@@ -4,3 +4,4 @@ Werkzeug>=0.9.6
 facebook-sdk>=0.4.0
 flask-heroku>=0.1.9
 gunicorn>=19.1.1
+gevent>=1.0.1

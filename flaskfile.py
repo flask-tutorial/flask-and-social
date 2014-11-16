@@ -6,10 +6,10 @@
 # all the imports
 import urllib, json, os, facebook
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
-from flask.ext.heroku import Heroku
+#from flask.ext.heroku import Heroku
 
 app = Flask(__name__)
-heroku = Heroku(app)
+#heroku = Heroku(app)
 
 
 if os.environ.get('HEROKU') is not None:
