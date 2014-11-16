@@ -20,7 +20,7 @@ if os.environ.get('HEROKU') is not None:
   app.logger.info('flask-and-social startup')
 
 # this will read in variables from config.py
-app.config.from_object("config")
+#app.config.from_object("config")
 
 
 # ====================================================================================
