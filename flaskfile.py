@@ -4,10 +4,20 @@
 # originially from https://github.com/flask-tutorial/flask-and-social
 
 # all the imports
-import sqlite3, urllib, json, os, facebook
+import urllib, json, os, facebook
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+from flask.ext.heroku import Heroku
 
 app = Flask(__name__)
+heroku = Heroku(app)
+
+
+if os.environ.get('HEROKU') is not None:
+  import logging
+  stream_handler = logging.StreamHandler()
+  app.logger.addHandler(stream_handler)
+  app.logger.setLevel(logging.INFO)
+  app.logger.info('flask-and-social startup')
 
 # this will read in variables from config.py
 app.config.from_object("config")
@@ -27,16 +37,17 @@ app.config.from_object("config")
 @app.before_request
 def before_request():
   g.dir = os.path.dirname(os.path.abspath(__file__))
-  g.db  = sqlite3.connect(g.dir + '/' + app.config['DATABASE'])
+  #g.db  = sqlite3.connect(g.dir + '/' + app.config['DATABASE'])
   g.facebook_user = facebook.get_user_from_cookie(request.cookies, app.config['FACEBOOK_APP_ID'], app.config['FACEBOOK_APP_SECRET'])
-  app.logger.error('facebbok user' + repr(g.facebook_user))
+  app.logger.error('facebook user' + repr(g.facebook_user))
 
 
 @app.teardown_request
 def teardown_request(exception):
-  db = getattr(g, 'db', None)
-  if db is not None:
-    db.close()
+  pass
+  #db = getattr(g, 'db', None)
+  #if db is not None:
+  #  db.close()
 
 # ====================================================================================
 # routes - these map URLs to your python functions
@@ -63,10 +74,10 @@ def form():
       errors.append( 'please choose a mood' )
 
     if len(errors) == 0:
-      g.db.execute('insert into mood (uid, mood, lat, long) values (?, ?, ?, ?)', 
-                   [session['uid'], mood, request.form.get('lat'), request.form.get('long')])
-      g.db.commit()
-      flash('Your entry "' + str(mood) + '" was saved to the database')
+      #g.db.execute('insert into mood (uid, mood, lat, long) values (?, ?, ?, ?)', 
+      #             [session['uid'], mood, request.form.get('lat'), request.form.get('long')])
+      #g.db.commit()
+      flash('Your entry "' + str(mood) + '" was not saved to the database - because we currently have no database')
       return redirect( url_for('index') )
   return render_template('form.html', error=", ".join(errors))
 
@@ -74,8 +85,8 @@ def form():
 def connections():
   if not session.get('logged_in'):
     abort(401)
-  cur = g.db.execute('select * from user where uid=?', [ session['uid'] ])
-  connections = cur.fetchall()
+  #cur = g.db.execute('select * from user where uid=?', [ session['uid'] ])
+  connections = [] # cur.fetchall()
   return render_template('connections.html', connections=connections, facebook_user = g.facebook_user)
 
 @app.route('/login', methods=['GET', 'POST'])
